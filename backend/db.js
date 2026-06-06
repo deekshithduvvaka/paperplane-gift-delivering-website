@@ -1,5 +1,4 @@
 const pg = require('pg');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
@@ -7,15 +6,18 @@ let dbType = 'sqlite';
 let pgPool = null;
 let sqliteDb = null;
 
-if (process.env.DATABASE_URL) {
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+
+if (connectionString) {
   dbType = 'postgres';
   pgPool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+    connectionString: connectionString,
+    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false }
   });
   console.log('Database connected: PostgreSQL');
 } else {
   dbType = 'sqlite';
+  const sqlite3 = require('sqlite3').verbose();
   const dbPath = path.resolve(__dirname, 'paperplane.sqlite');
   const exists = fs.existsSync(dbPath);
   sqliteDb = new sqlite3.Database(dbPath);

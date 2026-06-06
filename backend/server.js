@@ -67,18 +67,21 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Initialize DB and start server
-const startServer = async () => {
-  try {
-    // Initialize database tables if they do not exist
-    await initDb();
-    app.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to initialize database:', error);
-    process.exit(1);
-  }
-};
+// Initialize DB on startup (asynchronous background task)
+initDb()
+  .then(() => {
+    console.log('Database tables verified/initialized.');
+  })
+  .catch((error) => {
+    console.error('Failed to initialize database on startup:', error);
+  });
 
-startServer();
+// Start listening only when NOT in a serverless environment (like Vercel)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Local Express server listening on port ${PORT}`);
+  });
+}
+
+// Export app for Vercel serverless function handling
+module.exports = app;
