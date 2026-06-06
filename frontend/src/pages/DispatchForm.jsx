@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { PlusCircle, Loader2, ArrowLeft, Send } from 'lucide-react';
+import { apiFetch } from '../utils/api';
 
 export default function DispatchForm({ onCancel }) {
   const { token } = useAuth();
@@ -23,9 +24,7 @@ export default function DispatchForm({ onCancel }) {
     const fetchAgents = async () => {
       setLoadingAgents(true);
       try {
-        const response = await fetch('/api/agents', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await apiFetch('/api/agents');
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Failed to load agents');
         setAgents(data.agents || []);
@@ -54,12 +53,8 @@ export default function DispatchForm({ onCancel }) {
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/dispatches', {
+      const response = await apiFetch('/api/dispatches', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
         body: JSON.stringify({
           order_id: orderId,
           recipient_name: recipientName,

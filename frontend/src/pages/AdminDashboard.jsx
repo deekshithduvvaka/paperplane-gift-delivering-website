@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { apiFetch, getAssetUrl } from '../utils/api';
 import { 
   Search, 
   Filter, 
@@ -59,9 +60,7 @@ export default function AdminDashboard({ onNavigateToCreate }) {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch('/api/agents', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await apiFetch('/api/agents');
         const data = await response.json();
         if (response.ok) setAgents(data.agents || []);
       } catch (err) {
@@ -83,9 +82,7 @@ export default function AdminDashboard({ onNavigateToCreate }) {
         agent_id: agentFilter
       });
 
-      const response = await fetch(`/api/dispatches?${queryParams.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiFetch(`/api/dispatches?${queryParams.toString()}`);
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || 'Failed to load dispatches');
@@ -104,9 +101,7 @@ export default function AdminDashboard({ onNavigateToCreate }) {
     setIsDetailOpen(true);
     setLoadingDetail(true);
     try {
-      const response = await fetch(`/api/dispatches/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiFetch(`/api/dispatches/${id}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to fetch details');
       setDetailData(data);
@@ -134,12 +129,8 @@ export default function AdminDashboard({ onNavigateToCreate }) {
 
     setSubmittingRetry(true);
     try {
-      const response = await fetch(`/api/dispatches/${selectedId}/status`, {
+      const response = await apiFetch(`/api/dispatches/${selectedId}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
         body: JSON.stringify({
           status: retryStatus,
           retry_date: retryDate,
@@ -505,7 +496,7 @@ export default function AdminDashboard({ onNavigateToCreate }) {
                 </p>
                 <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 max-h-56 flex items-center justify-center">
                   <img
-                    src={detailData.proof.image_url}
+                    src={getAssetUrl(detailData.proof.image_url)}
                     alt="Proof of Delivery"
                     className="max-h-56 max-w-full object-contain"
                   />

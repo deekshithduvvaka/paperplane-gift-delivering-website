@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { apiFetch } from '../utils/api';
 import { 
   Truck, 
   MapPin, 
@@ -47,9 +48,7 @@ export default function AgentDashboard() {
   const fetchAssignedDeliveries = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/dispatches', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiFetch('/api/dispatches');
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to fetch deliveries');
 
@@ -89,12 +88,8 @@ export default function AgentDashboard() {
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/dispatches/${dispatch.id}/status`, {
+      const response = await apiFetch(`/api/dispatches/${dispatch.id}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
         body: JSON.stringify({
           status: nextStatus,
           notes: `Status advanced to ${nextStatus} by Agent.`
@@ -156,11 +151,8 @@ export default function AgentDashboard() {
       formData.append('notes', statusNotes || 'Gift successfully delivered.');
       formData.append('proof_photo', uploadFile);
 
-      const response = await fetch(`/api/dispatches/${selectedDispatch.id}/status`, {
+      const response = await apiFetch(`/api/dispatches/${selectedDispatch.id}/status`, {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
         body: formData
       });
       const data = await response.json();
@@ -199,12 +191,8 @@ export default function AgentDashboard() {
 
     setUpdatingStatus(true);
     try {
-      const response = await fetch(`/api/dispatches/${selectedDispatch.id}/status`, {
+      const response = await apiFetch(`/api/dispatches/${selectedDispatch.id}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
         body: JSON.stringify({
           status: 'Failed',
           reason: failReason,

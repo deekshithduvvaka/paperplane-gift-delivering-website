@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Download, Calendar, FileSpreadsheet, Loader2 } from 'lucide-react';
 import Modal from './Modal';
+import { apiFetch } from '../utils/api';
 
 export default function DailyReportModal({ isOpen, onClose }) {
   const { token } = useAuth();
@@ -20,11 +21,7 @@ export default function DailyReportModal({ isOpen, onClose }) {
   const fetchReport = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/reports/daily?date=${date}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await apiFetch(`/api/reports/daily?date=${date}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to fetch report');
       setRecords(data.records || []);

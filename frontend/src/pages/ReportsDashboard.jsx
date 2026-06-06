@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { apiFetch } from '../utils/api';
 import { 
   BarChart, 
   Bar, 
@@ -40,13 +41,11 @@ export default function ReportsDashboard() {
   const fetchReportData = async () => {
     setLoading(true);
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-
       // Fetch all reports simultaneously
       const [sumRes, distRes, perfRes] = await Promise.all([
-        fetch('/api/reports/summary', { headers }),
-        fetch('/api/reports/status-distribution', { headers }),
-        fetch('/api/reports/agent-performance', { headers })
+        apiFetch('/api/reports/summary'),
+        apiFetch('/api/reports/status-distribution'),
+        apiFetch('/api/reports/agent-performance')
       ]);
 
       const sumData = await sumRes.json();
