@@ -21,7 +21,8 @@ app.use(cors());
 app.use(express.json());
 
 // Ensure uploads directory exists and write a dummy sample proof photo
-const uploadDir = path.join(__dirname, 'uploads');
+const isVercel = process.env.VERCEL;
+const uploadDir = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
