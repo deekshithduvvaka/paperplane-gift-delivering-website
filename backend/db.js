@@ -82,7 +82,7 @@ const initDb = async () => {
   } else {
     const schemaPath = path.join(__dirname, 'schema-sqlite.sql');
     const sql = fs.readFileSync(schemaPath, 'utf8');
-    
+
     // SQLite node client does not execute multiple statements in one query() easily unless we use db.exec.
     // So we'll use sqliteDb.exec for initializing schema.
     await new Promise((resolve, reject) => {
