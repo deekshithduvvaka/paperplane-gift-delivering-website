@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { query, initDb } = require('./db');
 
-const seed = async () => {
+const seed = async (clearFirst = true) => {
   try {
     console.log('Starting database seeding...');
 
@@ -9,11 +9,13 @@ const seed = async () => {
     await initDb();
 
     // 2. Clear tables (just in case)
-    await query('DELETE FROM failed_attempts');
-    await query('DELETE FROM proof_of_delivery');
-    await query('DELETE FROM status_updates');
-    await query('DELETE FROM dispatches');
-    await query('DELETE FROM delivery_agents');
+    if (clearFirst) {
+      await query('DELETE FROM failed_attempts');
+      await query('DELETE FROM proof_of_delivery');
+      await query('DELETE FROM status_updates');
+      await query('DELETE FROM dispatches');
+      await query('DELETE FROM delivery_agents');
+    }
 
     // 3. Create password hashes
     const adminPasswordHash = await bcrypt.hash('adminpassword', 10);
@@ -155,11 +157,20 @@ const seed = async () => {
     );
 
     console.log('Seeding finished successfully.');
-    process.exit(0);
   } catch (error) {
     console.error('Seeding failed:', error);
-    process.exit(1);
+    throw error;
   }
 };
 
-seed();
+module.exports = { seed };
+
+if (require.main === module) {
+  seed(true)
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      process.exit(1);
+    });
+}
