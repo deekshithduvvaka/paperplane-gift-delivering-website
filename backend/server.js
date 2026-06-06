@@ -41,9 +41,25 @@ app.use('/api/dispatches', dispatchesRouter);
 app.use('/api/agents', agentsRouter);
 app.use('/api/reports', reportsRouter);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date() });
+// Health check endpoint with database diagnosis
+app.get('/api/health', async (req, res) => {
+  try {
+    const { query, dbType } = require('./db');
+    const checkRes = await query('SELECT COUNT(*) as count FROM delivery_agents');
+    const count = parseInt(checkRes.rows[0].count || 0);
+    res.json({ 
+      status: 'OK', 
+      dbType,
+      agentsCount: count,
+      timestamp: new Date() 
+    });
+  } catch (err) {
+    res.json({
+      status: 'DB_ERROR',
+      error: err.message,
+      timestamp: new Date()
+    });
+  }
 });
 
 // Serve static frontend assets if built (for production deployment on Render/Vercel)
